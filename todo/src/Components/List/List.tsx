@@ -1,119 +1,57 @@
 import React from "react";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
+
+import { showArr } from "../Types/Elements.types";
+import "./List.css";
 import Input from "../Input/Input";
 import Item from "../Item/Item";
-import { v4 as uuidv4 } from 'uuid';
-import "./List.css";
-import {ListProps} from '../Types/Elements.types';
-import { ListState } from "../Types/Elements.types";
-import { showArr } from "../Types/Elements.types";
+import { ListProps } from "../Types/Elements.types";
+import {
+  toggleTodo,
+  clearCompleted,
+} from "../../store/actionCreators";
 
-class List extends React.Component<ListProps, ListState> {
-  constructor(props:ListProps) {
-    super(props);
-    this.state = {
-      todos: [],
-      show:"all",
-    };
-  }
-
-  inputSubmitHandler = (data:string) => {
-    let newid = uuidv4();
-    this.setState((prev) => ({
-      todos: [
-        ...prev.todos,
-        { text: data, id: newid ,isComplete:false },
-      ],
-    }));
-  };
-
-  deleteTaskHandler = (id:string) => {
-    this.setState((prev) => ({
-      todos: prev.todos.filter((todo) => todo.id !== id),
-    }));
-  };
-
-  completeTaskHandler = (id:string) => {
-    this.setState((prev) => ({
-      todos: prev.todos.map((todo) => {
-        if (todo.id === id) {
-          if (todo.isComplete === false) return { ...todo, isComplete:true };
-          else return { ...todo, isComplete:false };
-        } else return todo;
-      }),
-    }));
-  };
-
-  allCompleteTaskHandler = (check:boolean) => {
-    this.setState((prev) => ({
-      todos: prev.todos.map((todo) => {
-        if (check === false) return { ...todo, isComplete:true };
-        else if (check === true) return { ...todo, isComplete:false };
-        else return todo;
-      }),
-    }));
-  };
-
+class List extends React.Component<ListProps> {
   activeShowHandler = () => {
-    this.setState({ show: "active" });
+    this.props.toggleTodo("active");
   };
 
   allShowHandler = () => {
-    this.setState({show:"all"});
+    this.props.toggleTodo("all");
   };
 
   completeShowHandler = () => {
-    this.setState({ show: "complete" });
-  };
-
-  clearCompleteHandler = () => {
-    this.setState((prev) => ({
-      todos: prev.todos.filter((todo) => todo.isComplete === false),
-    }));
-  };
-
-  editTaskHandler = (newdata:string, id:string) => {
-    this.setState((prev) => ({
-      todos: prev.todos.map((todo) => {
-        if (todo.id === id) return { ...todo, text: newdata };
-        else return todo;
-      }),
-    }));
+    this.props.toggleTodo("complete");
   };
 
   render() {
-    let arr:showArr =[];
-    if(this.state.show === "all")
-    arr = this.state.todos;
-    else if(this.state.show === "active")
-    arr = this.state.todos.filter((todo)=>todo.isComplete===false);
-    else if(this.state.show === "complete")
-    arr = this.state.todos.filter((todo)=>todo.isComplete === true);
+    let arr: showArr = [];
+    if (this.props.filter === "all") arr = this.props.todos;
+    else if (this.props.filter === "active")
+      arr = this.props.todos.filter((todo) => todo.isComplete === false);
+    else if (this.props.filter === "complete")
+      arr = this.props.todos.filter((todo) => todo.isComplete === true);
     return (
       <>
         <div id="overall_div">
-          <Input
-            onSubmit={this.inputSubmitHandler}
-            onAllComplete={this.allCompleteTaskHandler}
-          />
-          {this.state.todos.length > 0 ? <hr id="first"></hr> : <></>}
+          <Input />
+          {this.props.todos.length > 0 ? <hr id="first"></hr> : <></>}
           <div id="todo_div">
             {arr.map((todo) => (
               <Item
                 key={todo.id}
                 id={todo.id}
                 isComplete={todo.isComplete}
-                onDelete={this.deleteTaskHandler}
-                onComplete={this.completeTaskHandler}
-                onEdit={this.editTaskHandler}
-                text={todo.text}
+                text={todo.data}
               />
             ))}
           </div>
-          {this.state.todos.length > 0 ? (
+          {this.props.todos.length > 0 ? (
             <div id="button_div">
               <div id="remaining" className="button">
                 {
-                  this.state.todos.filter((todo) => todo.isComplete === false)
+                  this.props.todos.filter((todo) => todo.isComplete === false)
                     .length
                 }{" "}
                 Items left
@@ -121,7 +59,7 @@ class List extends React.Component<ListProps, ListState> {
               <div id="all_div" className="button">
                 <button
                   className={`${
-                    this.state.show === "all" ? "clicked " : "all_button"
+                    this.props.filter === "all" ? "clicked " : "all_button"
                   }`}
                   onClick={this.allShowHandler}
                 >
@@ -131,7 +69,9 @@ class List extends React.Component<ListProps, ListState> {
               <div id="active_div" className="button">
                 <button
                   className={`${
-                    this.state.show === "active" ? "clicked " : "active_button"
+                    this.props.filter === "active"
+                      ? "clicked "
+                      : "active_button"
                   }`}
                   onClick={this.activeShowHandler}
                 >
@@ -141,7 +81,9 @@ class List extends React.Component<ListProps, ListState> {
               <div id="completed_div" className="button">
                 <button
                   className={`${
-                    this.state.show === "complete" ? "clicked " : "completed_button"
+                    this.props.filter === "complete"
+                      ? "clicked "
+                      : "completed_button"
                   }`}
                   onClick={this.completeShowHandler}
                 >
@@ -149,7 +91,7 @@ class List extends React.Component<ListProps, ListState> {
                 </button>
               </div>
               <div id="clear_div" className="button">
-                <button id="clear_button" onClick={this.clearCompleteHandler}>
+                <button id="clear_button" onClick={this.props.clearCompleted}>
                   Clear Completed Tasks
                 </button>
               </div>
@@ -163,4 +105,18 @@ class List extends React.Component<ListProps, ListState> {
   }
 }
 
-export default List;
+const mapStateToProps = (state: ListProps) => {
+  return {
+    todos: state.todos,
+    filter: state.filter,
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return {
+    toggleTodo: (toggle: string) => dispatch(toggleTodo(toggle)),
+    clearCompleted: () => dispatch(clearCompleted()),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(List);

@@ -1,30 +1,40 @@
 import React from "react";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
+
 import "./Input.css";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { InputProps } from "../Types/Elements.types";
 import { InputState } from "../Types/Elements.types";
+import {
+  allComplete,
+  addTodo,
+} from "../../store/actionCreators";
 
 class Input extends React.Component<InputProps, InputState> {
-  constructor(props:InputProps) {
+  constructor(props: InputProps) {
     super(props);
     this.state = {
       data: "",
       check: false,
     };
   }
-  inputHandler = (e:React.ChangeEvent<HTMLInputElement>):void => {
+
+  inputHandler = (e: React.ChangeEvent<HTMLInputElement>): void => {
     this.setState({ data: e.target.value });
   };
-  inputSubmit = (e : React.KeyboardEvent<HTMLInputElement>):void => {
+
+  inputSubmit = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === "Enter" && this.state.data !== "") {
-      this.props.onSubmit(this.state.data);
+      this.props.addTodo(this.state.data);
       this.setState({ data: "" });
     }
   };
+
   allCompleteHandler = () => {
     if (this.state.check === false) this.setState({ check: true });
     else this.setState({ check: false });
-    this.props.onAllComplete(this.state.check);
+    this.props.allComplete(this.state.check);
   };
 
   render() {
@@ -52,5 +62,11 @@ class Input extends React.Component<InputProps, InputState> {
     );
   }
 }
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return {
+    allComplete: (check: boolean) => dispatch(allComplete(check)),
+    addTodo: (data: string) => dispatch(addTodo(data)),
+  };
+};
 
-export default Input;
+export default connect(null, mapDispatchToProps)(Input);

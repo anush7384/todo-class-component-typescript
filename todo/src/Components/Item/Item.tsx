@@ -1,10 +1,14 @@
 import React from "react";
+import {connect} from 'react-redux';
+import { Dispatch } from "redux";
+
 import "./Item.css";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsCircle } from "react-icons/bs";
 import { BsCheckCircle } from "react-icons/bs";
 import { ItemProps } from "../Types/Elements.types";
 import { ItemState } from "../Types/Elements.types";
+import {deleteTodo, completeTodo, editTodo} from '../../store/actionCreators'
 
 class Item extends React.Component<ItemProps,ItemState> {
   constructor(props:ItemProps) {
@@ -16,11 +20,11 @@ class Item extends React.Component<ItemProps,ItemState> {
   }
 
   deleteHandler = () => {
-    this.props.onDelete(this.props.id);
+    this.props.deleteTodo(this.props.id);
   };
 
   completeHandler = () => {
-    this.props.onComplete(this.props.id);
+    this.props.completeTodo(this.props.id);
   };
 
   enableEditing = () => {
@@ -33,7 +37,7 @@ class Item extends React.Component<ItemProps,ItemState> {
 
   editDataSubmit = (e:React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      this.props.onEdit(this.state.data, this.props.id);
+      this.props.editTodo(this.props.id,this.state.data);
       this.setState({ edit: false });
     }
   };
@@ -53,6 +57,7 @@ class Item extends React.Component<ItemProps,ItemState> {
           <div id="complete_div">
             {this.props.isComplete === true ? (
               <BsCheckCircle
+                id="complete_circle"
                 className="complete_icon"
                 onClick={this.completeHandler}
               />
@@ -80,4 +85,12 @@ class Item extends React.Component<ItemProps,ItemState> {
   }
 }
 
-export default Item;
+const mapDispatchToProps = (dispatch:Dispatch) =>{
+  return {
+    deleteTodo: (id: string) => dispatch(deleteTodo(id)),
+    completeTodo: (id: string) => dispatch(completeTodo(id)),
+    editTodo: (id: string, data: string) => dispatch(editTodo(id, data)),
+  };
+}
+
+export default connect(null,mapDispatchToProps)(Item);
