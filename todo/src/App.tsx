@@ -1,8 +1,8 @@
 import "./App.css";
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Home from "./Pages/Home";
+import Home from "./routes/Home";
 import Heading from "./Components/Heading/Heading";
 import List from "./Components/List/List";
 
@@ -11,22 +11,9 @@ class App extends React.Component {
     return (
       <Router>
         <div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/todo">Todo App</Link>
-              </li>
-              <li>
-                <Link to="/bookmark">Bookmark App</Link>
-              </li>
-            </ul>
-          </nav>
           <Routes>
             <Route
-              path="/todo"
+              path="/"
               element={
                 <>
                   <Heading /> <List />{" "}
@@ -34,7 +21,7 @@ class App extends React.Component {
               }
             ></Route>
             <Route path="/bookmark"></Route>
-            <Route path="/" element={<Home />}></Route>
+            <Route path="/home" element={<Home />}></Route>
           </Routes>
         </div>
       </Router>
