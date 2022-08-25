@@ -5,5 +5,3 @@ import { todoReducer } from "../store/reducer/index";
 
 const logger = createLogger();
 export const store = createStore(todoReducer,applyMiddleware(logger));
-
-
